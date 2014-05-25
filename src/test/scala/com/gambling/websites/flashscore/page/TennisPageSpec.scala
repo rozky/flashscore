@@ -2,28 +2,25 @@ package com.gambling.websites.flashscore.page
 
 import org.scalatest.{Matchers, WordSpec, FlatSpec}
 import com.rozky.common.web.extraction.phantomjs.PhantomJsExecutor
-import com.gambling.websites.flashscore.domain.{SetScore, TennisMatch}
+import com.gambling.websites.flashscore.domain.{TennisMatchOdds, SetScore, TennisMatch}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
 class TennisPageSpec extends WordSpec with Matchers {
 
     "getMatches" should {
-        "extract all matches" in {
+        "extract all matches" ignore {
             val matches: Seq[TennisMatch] = PhantomJsExecutor.execute(implicit driver =>  new TennisPage().getMatches)
+
+            matches.foreach(m => println(m))
         }
     }
 
-    "parseSetScore" should {
-        "parse set score" in {
-            val home: Document = Jsoup.parse("<td>6</td>")
-            val away: Document = Jsoup.parse("<td>6</td>")
+    "getMatchOdds" should {
+        "extract matches oads" in {
+            val matches: Seq[TennisMatchOdds] = PhantomJsExecutor.execute(implicit driver =>  new TennisPage().getMatchOdds)
 
-            // when
-            val score: SetScore = TennisPage.Parser.parseSetScore(home, away)
-
-            // then
-            score should be()
+            matches.foreach(m => println(m))
         }
     }
 }
