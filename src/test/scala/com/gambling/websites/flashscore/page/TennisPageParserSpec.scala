@@ -1,11 +1,10 @@
 package com.gambling.websites.flashscore.page
 
 import org.scalatest.{Matchers, WordSpec}
-import com.rozky.common.web.extraction.phantomjs.PhantomJsExecutor
-import com.gambling.websites.flashscore.domain.{PlayerName, SetScore, TennisMatch}
+import com.gambling.websites.flashscore.domain.{TennisMatchOdds, PlayerName, SetScore}
 import org.jsoup.Jsoup
-import org.jsoup.nodes.{Element, Document}
-import com.rozky.common.web.extraction.jsoup.JsoupUtils
+import org.jsoup.nodes.Element
+import scala.None
 
 class TennisPageParserSpec extends WordSpec with Matchers {
 
@@ -55,7 +54,53 @@ class TennisPageParserSpec extends WordSpec with Matchers {
         }
     }
 
+    "parseMatchOdds" should {
+        "parse row with odds" in {
+            val html =
+                """
+                  | <td class="cell_ad time ">14:00</td>
+                  | <td class="cell_ab team-home  bold "><span class="padl">Leonardi F. (Ita)</span></td>
+                  | <td class="cell_ac team-away "><span class="padl">Di Ienno D. (Ita)</span></td>
+                  | <td class="cell_sa score  bold ">2&nbsp;:&nbsp;0</td>
+                  | <td rowspan="1" class="cell_oa kx kx o_1 ">1.70</td>
+                  | <td rowspan="1" class="cell_oc kx last kx o_2 last ">2.20</td>
+                """.stripMargin
+
+            // when
+            val odds: Option[TennisMatchOdds] = TennisPage.Parser.parseMatchOdds(tableRow(html))
+
+            // then
+            odds.get should be(new TennisMatchOdds(
+                home = List(new PlayerName("Leonardi", "F")),
+                away = List(new PlayerName("Di Ienno", "D")),
+                homeOdds = 1.7f,
+                awayOdds = 2.2f))
+        }
+
+        "parse row without odds" in {
+            val html =
+            """
+              | <td class="cell_ad time ">14:00</td>
+              | <td class="cell_ab team-home  bold "><span class="padl">Leonardi F. (Ita)</span></td>
+              | <td class="cell_ac team-away "><span class="padl">Di Ienno D. (Ita)</span></td>
+              | <td class="cell_sa score  bold ">2&nbsp;:&nbsp;0</td>
+              | <td rowspan="1" class="cell_oa kx kx no-odds ">-</td>
+              | <td rowspan="1" class="cell_oc kx last kx no-odds last ">-</td>
+            """.stripMargin
+
+            // when
+            val odds: Option[TennisMatchOdds] = TennisPage.Parser.parseMatchOdds(tableRow(html))
+
+            // then
+            odds should be(None)
+        }
+    }
+
     private def tableCell(content: String): Element = {
         Jsoup.parse(s"<table><tr><td>$content</td></tr></table>").getElementsByTag("td").get(0)
+    }
+
+    private def tableRow(content: String): Element = {
+        Jsoup.parse(s"<table><tr>$content</tr></table>").getElementsByTag("tr").get(0)
     }
 }

@@ -63,13 +63,9 @@ class TennisPage(implicit driver: WebDriver) {
         var result: List[TennisMatchOdds] = List[TennisMatchOdds]()
         while(iterator.hasNext) {
             val row: Element = iterator.next()
-            if (row.getElementsByClass("blank-line").size() == 0) {
-                result = result :+ new TennisMatchOdds(
-                    home = parsePlayerName(row.getElementsByClass("team-home").get(0)),
-                    away = parsePlayerName(row.getElementsByClass("team-away").get(0)),
-                    homeOdds = JsoupUtils.toFloat(row.getElementsByClass("o_1").get(0)),
-                    awayOdds = JsoupUtils.toFloat(row.getElementsByClass("o_2").get(0))
-                )
+            val matchOdds: Option[TennisMatchOdds] = parseMatchOdds(row)
+            matchOdds match {
+                case Some(odds) => result = result :+ odds
             }
         }
 
@@ -107,8 +103,8 @@ object TennisPage {
 
             new MatchScore(
                 sets = List.range(0, homeScores.size()).map(i => parseSetScore(homeScores.get(i), awayScores.get(i))),
-                homeWonSets = Integer.valueOf(home.getElementsByClass("score-home").get(0).text()),
-                awayWonSets = Integer.valueOf(away.getElementsByClass("score-away").get(0).text()))
+                homeWonSets = JsoupUtils.toInt(home.getElementsByClass("score-home").get(0)),
+                awayWonSets = JsoupUtils.toInt(away.getElementsByClass("score-away").get(0)))
         }
 
         def parseSetScore(home: Element, away: Element): SetScore = {
@@ -127,6 +123,21 @@ object TennisPage {
                     Some(JsoupUtils.toInt(homeTieBreakScore.get(0))),
                     Some(JsoupUtils.toInt(awayTieBreakScore.get(0)))
                 )
+            }
+        }
+
+        def parseMatchOdds(row: Element): Option[TennisMatchOdds] = {
+            val homeOdds: Elements = row.getElementsByClass("o_1")
+            val awayOdds: Elements = row.getElementsByClass("o_2")
+            if (homeOdds.size() == 1 && awayOdds.size() == 1) {
+                Some(new TennisMatchOdds(
+                    home = parsePlayerName(row.getElementsByClass("team-home").get(0)),
+                    away = parsePlayerName(row.getElementsByClass("team-away").get(0)),
+                    homeOdds = JsoupUtils.toFloat(homeOdds.get(0)),
+                    awayOdds = JsoupUtils.toFloat(awayOdds.get(0)))
+                )
+            } else {
+                None
             }
         }
     }

@@ -1,15 +1,13 @@
 package com.gambling.websites.flashscore.page
 
-import org.scalatest.{Matchers, WordSpec, FlatSpec}
+import org.scalatest.{Matchers, WordSpec}
 import com.rozky.common.web.extraction.phantomjs.PhantomJsExecutor
-import com.gambling.websites.flashscore.domain.{TennisMatchOdds, SetScore, TennisMatch}
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+import com.gambling.websites.flashscore.domain.{TennisMatchOdds, TennisMatch}
 
 class TennisPageSpec extends WordSpec with Matchers {
 
     "getMatches" should {
-        "extract all matches" ignore {
+        "extract all matches" in {
             val matches: Seq[TennisMatch] = PhantomJsExecutor.execute(implicit driver =>  new TennisPage().getMatches)
 
             matches.foreach(m => println(m))
