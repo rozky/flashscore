@@ -6,11 +6,11 @@ import scala.beans.BeanProperty
 // number of sets
 // SinglesTennisMatch
 // DoublesTennisMatch
-case class TennisMatch(@BeanProperty home: Seq[PlayerName],
-                       @BeanProperty away: Seq[PlayerName],
-                       @BeanProperty score: MatchScore,
-                       @BeanProperty status: String,
-                       @BeanProperty startTime: String) {
+case class TennisMatchScore(@BeanProperty home: Seq[Player],
+                            @BeanProperty away: Seq[Player],
+                            @BeanProperty score: Score,
+                            @BeanProperty status: String,
+                            @BeanProperty startTime: String) {
 
 //    def isDouble: Boolean = home.contains("/") && away.contains("/")
     def isFinished: Boolean = "Finished".equals(status)
@@ -19,9 +19,9 @@ case class TennisMatch(@BeanProperty home: Seq[PlayerName],
     def isInterrupted: Boolean = "Interrupted".equals(status)
 }
 
-sealed case class MatchScore(@BeanProperty sets: List[SetScore],
-                             @BeanProperty homeWonSets: Int,
-                             @BeanProperty awayWonSets: Int)
+sealed case class Score(@BeanProperty sets: List[SetScore],
+                        @BeanProperty homeWonSets: Int,
+                        @BeanProperty awayWonSets: Int)
 
 //TieBreakSetScore
 // TieBreakSet
@@ -35,6 +35,6 @@ sealed case class SetScore(@BeanProperty home: Int,
     def isFinished: Boolean = true
 }
 
-sealed case class PlayerName(lastName: String, firstName: String)
+sealed case class Player(lastName: String, firstName: String)
 
 
